@@ -7,14 +7,21 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/labstack/echo"
+	"github.com/labstack/gommon/log"
 )
 
 type (
+	Logger interface {
+		echo.Logger
+		SetHeader(header string)
+	}
+
 	Application struct {
 		Echo        *echo.Echo
 		Controllers map[string]interface{}
 		Services    map[string]ServiceInterface
 		Router      *Router
+		Logger      Logger
 	}
 
 	BootCallBackFunc func(application *Application) error
@@ -24,7 +31,13 @@ func (app *Application) Use(middleware ...echo.MiddlewareFunc) {
 	app.Echo.Use(middleware...)
 }
 
-func (app *Application) GetLogger() echo.Logger {
+func (app *Application) GetEchoLogger() echo.Logger {
+	// l := log.New("-");
+	// app.Echo.Logger =
+	// lo := app.Echo.Logger.(*log.Logger)
+	// lo.SetHeader("hello")
+	// app.Echo.Logger.(*log.Logger).SetHeader(`{"时间":"${time_rfc3339_nano}","level":"${level}","prefix":"${prefix}",` +
+	// 	`"file":"${short_file}","line":"${line}"}`)
 	return app.Echo.Logger
 }
 
@@ -121,6 +134,7 @@ func CreateApplication(env *Env) (application *Application) {
 	application = &Application{
 		Echo:        e,
 		Router:      router,
+		Logger:      log.New("-"),
 		Controllers: make(map[string]interface{}),
 		Services:    make(map[string]ServiceInterface),
 	}
