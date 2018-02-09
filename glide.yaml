@@ -1,0 +1,13 @@
+package: github.com/alixez/Iron
+import:
+- package: gopkg.in/yaml.v2
+- package: github.com/labstack/echo
+  version: ~3.2.6
+- package: github.com/jinzhu/gorm
+  version: ~1.0.0
+  subpackages:
+  - dialects/mysql
+- package: github.com/go-sql-driver/mysql
+  version: v1.3
+- package: github.com/satori/go.uuid
+  version: ~1.2.0
