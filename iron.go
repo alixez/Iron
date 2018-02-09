@@ -20,6 +20,10 @@ type (
 	BootCallBackFunc func(application *Application) error
 )
 
+func (app *Application) Use(middleware ...echo.MiddlewareFunc) {
+	app.Echo.Use(middleware...)
+}
+
 func (app *Application) GetLogger() echo.Logger {
 	return app.Echo.Logger
 }
@@ -85,6 +89,16 @@ func AddGormToContext(db *gorm.DB) echo.MiddlewareFunc {
 		return func(ctx echo.Context) error {
 			c := ctx.(*Context)
 			c.AddDBHelper("gorm", db)
+			return next(c)
+		}
+	}
+}
+
+func AddDBHelperToContext(name string, db interface{}) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			c := ctx.(*Context)
+			c.AddDBHelper(name, db)
 			return next(c)
 		}
 	}
