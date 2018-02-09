@@ -20,6 +20,10 @@ type (
 	BootCallBackFunc func(application *Application) error
 )
 
+func (app *Application) GetLogger() echo.Logger {
+	return app.Echo.Logger
+}
+
 func (this *Application) getType(typeOf interface{}) reflect.Type {
 	return reflect.Indirect(reflect.ValueOf(typeOf)).Type()
 }

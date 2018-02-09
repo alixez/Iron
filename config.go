@@ -62,6 +62,22 @@ func (env *Env) Get(query string) interface{} {
 	return value
 }
 
+func (env *Env) GetMap(query string) map[interface{}]interface{} {
+	return env.Get(query).(map[interface{}]interface{})
+}
+
+func (env *Env) GetString(query string) string {
+	return env.Get(query).(string)
+}
+
+func (env *Env) GetInt(query string) int64 {
+	return env.Get(query).(int64)
+}
+
+func (env *Env) GetFloat(query string) float64 {
+	return env.Get(query).(float64)
+}
+
 /*
 Set config
 */
