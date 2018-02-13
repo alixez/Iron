@@ -1,7 +1,6 @@
 package Iron
 
 import (
-	"fmt"
 	"reflect"
 
 	"github.com/jinzhu/gorm"
@@ -11,11 +10,14 @@ import (
 )
 
 type (
+	// Logger interface
+	// 重建日志对象，可以设置日志输出格式
 	Logger interface {
 		echo.Logger
 		SetHeader(header string)
 	}
 
+	// Application class
 	Application struct {
 		Echo        *echo.Echo
 		Controllers map[string]interface{}
@@ -24,13 +26,17 @@ type (
 		Logger      Logger
 	}
 
+	// BootCallBackFunc 启动器的回掉方法
 	BootCallBackFunc func(application *Application) error
 )
 
+// Use ...
+// 使用某个中间件
 func (app *Application) Use(middleware ...echo.MiddlewareFunc) {
 	app.Echo.Use(middleware...)
 }
 
+// GetEchoLogger is a function to get echo logger
 func (app *Application) GetEchoLogger() echo.Logger {
 	// l := log.New("-");
 	// app.Echo.Logger =
@@ -41,43 +47,66 @@ func (app *Application) GetEchoLogger() echo.Logger {
 	return app.Echo.Logger
 }
 
-func (this *Application) getType(typeOf interface{}) reflect.Type {
+/*
+getType 获取 Type
+*/
+func (app *Application) getType(typeOf interface{}) reflect.Type {
 	return reflect.Indirect(reflect.ValueOf(typeOf)).Type()
 }
 
-func (this *Application) AddController(controller interface{}) {
-	fmt.Println(controller)
-	fmt.Println(this.getType(controller).Name())
-	this.Controllers[this.getType(controller).Name()] = controller
+/*
+AddController 添加注册控制器
+*/
+func (app *Application) AddController(controller interface{}) {
+	// fmt.Println(controller)
+	// fmt.Println(this.getType(controller).Name())
+	app.Controllers[app.getType(controller).Name()] = controller
 }
 
-func (this *Application) AddService(service ServiceInterface) {
-	this.Services[this.getType(service).Name()] = service
+/*
+AddService 添加服务
+*/
+func (app *Application) AddService(service ServiceInterface) {
+	app.Services[app.getType(service).Name()] = service
 }
 
-func (this *Application) initRouter() {
-	this.Router.ControllersIndex = this.Controllers
+/*
+initRouter 初始化路由
+*/
+func (app *Application) initRouter() {
+	app.Router.ControllersIndex = app.Controllers
 }
 
-func (this *Application) Boot(callback BootCallBackFunc) {
-	callback(this)
+/*
+Boot is Application booter
+*/
+func (app *Application) Boot(callback BootCallBackFunc) {
+	callback(app)
 
 	// 注入已经注册的service
-	this.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+	app.Echo.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			cc := c.(*Context)
-			cc.services = this.Services
+			cc.services = app.Services
 			return next(cc)
 		}
 	})
 
-	this.initRouter()
+	app.initRouter()
 }
 
-func (this *Application) Start(address string) {
-	this.Echo.Start(address)
+/*
+Start ...
+启动 Echo 应用
+*/
+func (app *Application) Start(address string) {
+	app.Echo.Start(address)
 }
 
+/*
+BetterAppContext ...
+封装了一个更好的上下文
+*/
 func BetterAppContext(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		cc := &Context{
@@ -97,6 +126,10 @@ func BetterAppContext(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+/*
+AddGormToContext ...
+将Gorm添加到上下文
+*/
 func AddGormToContext(db *gorm.DB) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -107,6 +140,10 @@ func AddGormToContext(db *gorm.DB) echo.MiddlewareFunc {
 	}
 }
 
+/*
+AddDBHelperToContext ...
+添加数据库帮助库到上下文
+*/
 func AddDBHelperToContext(name string, db interface{}) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -117,6 +154,10 @@ func AddDBHelperToContext(name string, db interface{}) echo.MiddlewareFunc {
 	}
 }
 
+/*
+CreateApplication ...
+创建应用程序
+*/
 func CreateApplication(env *Env) (application *Application) {
 	e := echo.New()
 	e.Use(BetterAppContext)

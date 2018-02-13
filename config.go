@@ -1,7 +1,6 @@
 package Iron
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
@@ -98,7 +97,7 @@ func LoadApplicationEnv() (env *Env) {
 		env = systemEnv
 		return
 	}
-	fmt.Println("...开始加载配置文件...")
+	// fmt.Println("...开始加载配置文件...")
 	filepathList, err := utils.ListDir("config", "yaml")
 	if err != nil {
 		panic("获取配置文件列表时发生错误")

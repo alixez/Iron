@@ -152,7 +152,10 @@ func (this *Context) SetServices(services map[string]ServiceInterface) {
 }
 
 func (this *Context) GetService(name string) ServiceInterface {
-	service := this.services[name]
+	service, ok := this.services[name]
+	if ok == false {
+		return nil
+	}
 	service.Init(this)
 	return service
 }
