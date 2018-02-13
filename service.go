@@ -1,7 +1,10 @@
 package Iron
 
+import "github.com/labstack/gommon/log"
+
 // Service class
 type Service struct {
+	Logger  Logger
 	context *Context
 }
 
@@ -17,6 +20,9 @@ type ServiceInterface interface {
 // Init service object function
 func (service *Service) Init(ctx *Context) {
 	service.context = ctx
+	if service.Logger == nil {
+		service.Logger = log.New("Service")
+	}
 }
 
 // GetContext 获取应用上下文
