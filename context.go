@@ -30,7 +30,7 @@ type (
 		Config      *Env
 	}
 
-	// File ...
+	// File 文件结构
 	File struct {
 		Filename     string
 		Path         string
