@@ -32,11 +32,13 @@ type (
 
 	// File 文件结构
 	File struct {
-		Filename     string
-		Path         string
-		AbstractPath string
-		Host         string
-		Extension    string
+		OriginalFilename string
+		Filename         string
+		Path             string
+		AbstractPath     string
+		Host             string
+		Extension        string
+		Size             int64
 	}
 )
 
@@ -85,6 +87,8 @@ func (ctx *Context) executeUploadedFile(file *multipart.FileHeader, subpath stri
 	for k, v := range storageInterface {
 		storage[k.(string)] = v.(string)
 	}
+	orignailFilename := file.Filename
+	orignailFileSize := file.Size
 	rootPath := storage["root"]
 	tumbnailPath := filepath.Join(rootPath, storage["tumbnail"])
 	orignailPath := filepath.Join(rootPath, storage["orignail"])
@@ -128,11 +132,13 @@ func (ctx *Context) executeUploadedFile(file *multipart.FileHeader, subpath stri
 	}
 
 	fileModel := &File{
-		Filename:     filename,
-		Path:         filepath.Join(dstPath, filename),
-		AbstractPath: absPath,
-		Host:         storage["host"],
-		Extension:    strings.Split(mimeType, "/")[1],
+		Filename:         filename,
+		Path:             filepath.Join(dstPath, filename),
+		AbstractPath:     absPath,
+		Host:             storage["host"],
+		Extension:        strings.Split(mimeType, "/")[1],
+		OriginalFilename: orignailFilename,
+		Size:             orignailFileSize,
 	}
 
 	return fileModel, nil
