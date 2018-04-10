@@ -34,7 +34,7 @@ type (
 	File struct {
 		Filename     string
 		Path         string
-		AbstructPath string
+		AbstractPath string
 		Host         string
 		Extension    string
 	}
@@ -130,7 +130,7 @@ func (ctx *Context) executeUploadedFile(file *multipart.FileHeader, subpath stri
 	fileModel := &File{
 		Filename:     filename,
 		Path:         filepath.Join(dstPath, filename),
-		AbstructPath: absPath,
+		AbstractPath: absPath,
 		Host:         storage["host"],
 		Extension:    strings.Split(mimeType, "/")[1],
 	}
