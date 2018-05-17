@@ -16,6 +16,7 @@ Env class
 环境配置类
 */
 type Env struct {
+	Root        string
 	AppName     string
 	Version     string
 	Environment string
@@ -159,11 +160,22 @@ var systemEnv = &Env{
 	HasLoaded: false,
 }
 
-func LoadApplicationEnv(root string, environment string) (env *Env) {
+func SetRoot(root string) {
+	systemEnv.Root = root
+}
+
+func SetEnvironment(environment string) {
+	systemEnv.Environment = environment
+}
+
+func LoadApplicationEnv() (env *Env) {
 	if systemEnv.HasLoaded {
 		env = systemEnv
 		return
 	}
+
+	root := systemEnv.Root
+	environment := systemEnv.Environment
 	// fmt.Println("...开始加载配置文件...")
 	dirPath := path.Join(root, "config")
 	filepathList, err := utils.ListDir(dirPath, "yaml")
