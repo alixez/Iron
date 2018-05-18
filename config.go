@@ -184,7 +184,7 @@ func LoadApplicationEnv() (env *Env) {
 	}
 	if !utils.ArrayContainer(filepathList, "default.yaml") {
 		filepathList = append(filepathList, "default.yaml")
-		f, _ := os.Create(path.Join(dirPath, "env.yaml"))
+		f, _ := os.Create(path.Join(dirPath, "default.yaml"))
 		f.WriteString("appname: iron\r\nversion: v1.0")
 	}
 	if !utils.ArrayContainer(filepathList, "default.dev.yaml") {
