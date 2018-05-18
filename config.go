@@ -9,6 +9,7 @@ import (
 
 	"github.com/alixez/Iron/utils"
 	"gopkg.in/yaml.v2"
+	"regexp"
 )
 
 /*
@@ -232,15 +233,6 @@ func LoadApplicationEnv() (env *Env) {
 		f.WriteString("# 在下面填写生产环境的配置, 此文件的配置会覆盖默认配置\r\ndebug: false")
 	}
 
-	// filepathList := []string{
-	// 	"env.yaml",
-	// 	"default.yaml",
-	// }
-	// masterConfigs := map[interface{}]interface{}{
-	// 	"environment": environment,
-	// 	"version":     "v0.1",
-	// 	"appname":     "demo",
-	// }
 	masterConfigs := ConfigDict{
 		"environment": environment,
 		"version":     "v0.1",
@@ -248,12 +240,23 @@ func LoadApplicationEnv() (env *Env) {
 	}
 
 	// 对文件列表进行排序
-	// default.yaml
-	// default.dev.yaml
-	// default.proc.yaml
+	// procFileList := fileListSlice{}
+	// devFileList := fileListSlice{}
 	filepathSlice := fileListSlice{}
+	// reg := regexp.MustCompile(`^.*\.proc\.yaml`)
+	// fmt.Println(reg.FindAllString("sadfasfasdfasdf.wqeqweqwe.proc.yamlasdfasfasdfasdfasdfasdfasdf", -1))
+	pattern := map[string]string{
+		"development": `^.*\.dev\.yaml`,
+		"production": `^.*\.proc\.yaml`,
+	}[environment]
 	for _, v := range filepathList {
-		filepathSlice = append(filepathSlice, v)
+		if v == "default.yaml" {
+			filepathSlice = append(filepathSlice, v)
+			continue
+		}
+		if ok, _ := regexp.MatchString(pattern, v); ok {
+			filepathSlice = append(filepathSlice, v)
+		}
 	}
 
 	sort.Stable(filepathSlice)
@@ -266,20 +269,6 @@ func LoadApplicationEnv() (env *Env) {
 	env = systemEnv
 	return
 }
-
-// func mergeConfig(m1 interface{}, m2 interface{}) interface{} {
-// 	if m1 == nil {
-// 		m1 = map[interface{}]interface{}{}
-// 	}
-// 	if m2 == nil {
-// 		m2 = map[interface{}]interface{}{}
-// 	}
-// 	m3 := m2.(map[interface{}]interface{})
-// 	for k, v := range m1.(map[interface{}]interface{}) {
-// 		m3[k] = v
-// 	}
-// 	return m3
-// }
 
 func mergeConfig(m1 ConfigDict, m2 ConfigDict) ConfigDict {
 	if m1 == nil {
@@ -312,24 +301,3 @@ func readConfigFromFile(filepath string, out ConfigDict) ConfigDict {
 
 	return mergeConfig(configs, out)
 }
-
-// func readConfigFromFile(filepath string, out map[interface{}]interface{}) interface{} {
-// 	configs := make(map[interface{}]interface{})
-// 	configByte, err := ioutil.ReadFile(filepath)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	err = yaml.Unmarshal(configByte, &configs)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return mergeConfig(configs, out)
-// 	// if filepath == "default.yaml" {
-// 	// 	// out["environment"] = configs["environment"]
-// 	// 	out["version"] = configs["version"]
-// 	// 	out["appname"] = configs["appname"]
-// 	// } else {
-// 	// 	// out["production"] = mergeConfig(configs["production"], out["production"])
-// 	// 	// out["development"] = mergeConfig(configs["development"], out["development"])
-// 	// }
-// }
