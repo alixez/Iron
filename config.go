@@ -29,7 +29,7 @@ type Env struct {
 ConfigDict class
 配置字典类
 */
-type ConfigDict map[string]interface{}
+type ConfigDict map[interface{}]interface{}
 
 func (cd ConfigDict) GetDict(field string) ConfigDict {
 	return cd[field].(ConfigDict)
@@ -43,8 +43,20 @@ func (cd ConfigDict) GetInt(field string) int {
 	return cd[field].(int)
 }
 
+func (cd ConfigDict) GetInt32(field string) int32 {
+	return cd[field].(int32)
+}
+
 func (cd ConfigDict) GetInt64(field string) int64 {
 	return cd[field].(int64)
+}
+
+func (cd ConfigDict) GetFloat32(field string) float32 {
+	return cd[field].(float32)
+}
+
+func (cd ConfigDict) GetFloat64(field string) float64 {
+	return cd[field].(float64)
 }
 
 func (cd ConfigDict) GetBool(field string) bool {
@@ -110,12 +122,21 @@ func (env *Env) Get(query string) interface{} {
 	// 	return value
 	// }
 
+	// alixez.dd
 	for _, field := range querySlice[1:] {
-		if v, ok := value.(map[interface{}]interface{}); ok {
+		//if v, ok := value.(map[interface{}]interface{}); ok {
+		//	value = v[field]
+		//	continue
+		//}
+		// 如果当前值是字典, 从字典里面取下一级
+		v, ok := value.(ConfigDict)
+		if ok {
 			value = v[field]
 			continue
+		} else {
+			break
 		}
-		value = nil
+		// value = v[field]
 	}
 	return value
 }
@@ -123,6 +144,10 @@ func (env *Env) Get(query string) interface{} {
 // func (env *Env) GetMap(query string) map[interface{}]interface{} {
 // 	return env.Get(query).(map[interface{}]interface{})
 // }
+
+func (env *Env) GetConfig() ConfigDict {
+	return env.configs
+}
 
 func (env *Env) GetDict(query string) ConfigDict {
 	return env.Get(query).(ConfigDict)
@@ -132,11 +157,19 @@ func (env *Env) GetString(query string) string {
 	return env.Get(query).(string)
 }
 
-func (env *Env) GetInt(query string) int64 {
+func (env *Env) GetInt(query string) int {
+	return env.Get(query).(int)
+}
+
+func (env *Env) GetInt64(query string) int64 {
 	return env.Get(query).(int64)
 }
 
-func (env *Env) GetFloat(query string) float64 {
+func (env *Env) GetFloat32(query string) float32 {
+	return env.Get(query).(float32)
+}
+
+func (env *Env) GetFloat64(query string) float64 {
 	return env.Get(query).(float64)
 }
 
