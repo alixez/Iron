@@ -82,16 +82,12 @@ func (ctx *Context) SaveFileToStorage(fields string, subpath string) (*File, err
 // ExecuteUploadedFile 处理已经上传的文件
 func (ctx *Context) executeUploadedFile(file *multipart.FileHeader, subpath string) (*File, error) {
 	config := ctx.Config
-	storageInterface := config.Get("storage").(map[interface{}]interface{})
-	storage := make(map[string]string)
-	for k, v := range storageInterface {
-		storage[k.(string)] = v.(string)
-	}
+	storage := config.Get("storage").(ConfigDict)
+	rootPath := storage.GetString("root")
 	orignailFilename := file.Filename
 	orignailFileSize := file.Size
-	rootPath := storage["root"]
-	tumbnailPath := filepath.Join(rootPath, storage["tumbnail"])
-	orignailPath := filepath.Join(rootPath, storage["orignail"])
+	tumbnailPath := filepath.Join(storage.GetString("root"), storage.GetString("tumbnail"))
+	orignailPath := filepath.Join(storage.GetString("root"), storage.GetString("orignail"))
 	mimeType := file.Header["Content-Type"][0]
 	filename := uuid.NewV1().String() + "." + strings.Split(mimeType, "/")[1]
 	dstPath := filepath.Join(orignailPath, subpath)
