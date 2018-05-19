@@ -131,7 +131,7 @@ func (ctx *Context) executeUploadedFile(file *multipart.FileHeader, subpath stri
 		Filename:         filename,
 		Path:             filepath.Join(dstPath, filename),
 		AbstractPath:     absPath,
-		Host:             storage["host"],
+		Host:             storage.GetString("host"),
 		Extension:        strings.Split(mimeType, "/")[1],
 		OriginalFilename: orignailFilename,
 		Size:             orignailFileSize,
